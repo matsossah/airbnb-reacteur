@@ -8,7 +8,7 @@ const uid2 = require("uid2");
 const User = require("../models/User");
 
 router.post("/user/sign_up", async (req, res) => {
-  const { email, username, phone, avatar, password } = req.fields;
+  const { email, username, phone, avatar, password, description } = req.fields;
   try {
     if (email && password) {
       const newUserExists = await User.findOne({ email: email });
@@ -31,6 +31,9 @@ router.post("/user/sign_up", async (req, res) => {
 
         if (username) {
           newUserFields.account.username = username;
+        }
+        if (description) {
+          newUserFields.account.description = description;
         }
         if (phone) {
           newUserFields.account.phone = phone;

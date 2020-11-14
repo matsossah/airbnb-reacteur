@@ -11,6 +11,7 @@ const User = mongoose.model("User", {
       required: true,
       type: String,
     },
+    description: String,
     phone: String,
     avatar: mongoose.Schema.Types.Mixed,
   },
