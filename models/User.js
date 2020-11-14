@@ -7,7 +7,10 @@ const User = mongoose.model("User", {
       unique: true,
       type: String,
     },
-    username: String,
+    username: {
+      required: true,
+      type: String,
+    },
     phone: String,
     avatar: mongoose.Schema.Types.Mixed,
   },
