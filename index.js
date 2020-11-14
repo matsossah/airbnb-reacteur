@@ -3,12 +3,12 @@ const formidable = require("express-formidable");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
-// require("dotenv").config();
+require("dotenv").config();
 
 const app = express();
 app.use(formidable());
 
-mongoose.connect("mongodb://localhost:27017/Airbnb-Reacteur", {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,
@@ -21,6 +21,6 @@ app.all("*", (req, res) => {
   res.status(400).json({ message: "Cette route n'existe pas" });
 });
 
-app.listen("3000", () => {
+app.listen(process.env.PORT, () => {
   console.log("server started");
 });

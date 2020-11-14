@@ -1,18 +1,22 @@
 const mongoose = require("mongoose");
 
 const User = mongoose.model("User", {
-  email: {
-    unique: true,
-    type: String,
-  },
   account: {
-    username: {
+    email: {
       required: true,
+      unique: true,
       type: String,
     },
+    username: String,
     phone: String,
-    avatar: Object,
+    avatar: mongoose.Schema.Types.Mixed,
   },
+  rooms: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Room",
+    },
+  ],
   token: String,
   hash: String,
   salt: String,
