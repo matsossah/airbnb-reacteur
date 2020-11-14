@@ -8,8 +8,8 @@ const uid2 = require("uid2");
 const User = require("../models/User");
 
 router.post("/user/sign_up", async (req, res) => {
+  const { email, username, phone, avatar, password } = req.fields;
   try {
-    const { email, username, phone, avatar, password } = req.fields;
     if (email && password) {
       const newUserExists = await User.findOne({ email: email });
 
@@ -26,6 +26,7 @@ router.post("/user/sign_up", async (req, res) => {
           },
           token: newUserToken,
           hash: newUserHash,
+          salt: newUserSalt,
         };
 
         if (username) {
@@ -52,8 +53,24 @@ router.post("/user/sign_up", async (req, res) => {
 });
 
 router.post("/user/log_in", async (req, res) => {
+  const { email, password } = req.fields;
   try {
-    res.status(200).json({ message: "LVQM First Tricorn" });
+    if (email && password) {
+      const existingUser = await User.findOne({ "account.email": email });
+      console.log(existingUser);
+
+      let currentUserHash = SHA256(password + existingUser.salt).toString(
+        encBase64
+      );
+
+      if (currentUserHash === existingUser.hash) {
+        res.status(200).json({ message: "Authorized" });
+      } else {
+        res.status(400).json({ message: "Unauthorized" });
+      }
+    } else {
+      res.status(400).json({ message: "Invalid request" });
+    }
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
