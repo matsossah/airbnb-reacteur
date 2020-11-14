@@ -67,7 +67,11 @@ router.post("/user/log_in", async (req, res) => {
       );
 
       if (currentUserHash === existingUser.hash) {
-        res.status(200).json({ message: "Authorized" });
+        res.status(200).json({
+          _id: existingUser._id,
+          account: existingUser.account,
+          token: existingUser.token,
+        });
       } else {
         res.status(400).json({ message: "Unauthorized" });
       }
