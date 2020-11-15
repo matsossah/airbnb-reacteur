@@ -53,4 +53,30 @@ router.post("/room/publish", isAuthenticated, async (req, res) => {
   }
 });
 
+router.get("/rooms", async (req, res) => {
+  try {
+    const rooms = await Room.find().select(
+      "_id title price owner pictures location"
+    );
+    res.status(200).json(rooms);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.get("/room", async (req, res) => {
+  let id = req.query.id;
+  console.log(id);
+  try {
+    if (id) {
+      const room = await Room.findById(id).populate("owner");
+      res.status(200).json(room);
+    } else {
+      res.status(400).json({ message: "id missing" });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router;
