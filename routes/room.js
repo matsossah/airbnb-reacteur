@@ -66,11 +66,31 @@ router.get("/rooms", async (req, res) => {
 
 router.get("/room/:id", async (req, res) => {
   let id = req.params.id;
-  console.log(id);
   try {
     if (id) {
       const room = await Room.findById(id).populate("owner");
       res.status(200).json(room);
+    } else {
+      res.status(400).json({ message: "id missing" });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.put("/room/update/:id", isAuthenticated, async (req, res) => {
+  let id = req.params.id;
+  try {
+    if (id) {
+      const room = await Room.findById(id).populate("owner");
+      let roomOwnerToken = room.owner.token;
+      let currentUserToken = req.token;
+
+      if (roomOwnerToken === currentUserToken) {
+        res.status(200).json("all good");
+      } else {
+        res.status(400).json({ message: "only the room owner can modify it" });
+      }
     } else {
       res.status(400).json({ message: "id missing" });
     }

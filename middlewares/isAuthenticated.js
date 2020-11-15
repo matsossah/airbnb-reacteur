@@ -7,9 +7,11 @@ const isAuthenticated = async (req, res, next) => {
       const user = await User.findOne({ token: token }).select(
         "account email _id rooms"
       );
+      req.token = token;
 
       if (user) {
         req.user = user;
+
         return next();
       } else {
         return res.status(400).json({ message: "Unauthorized" });
