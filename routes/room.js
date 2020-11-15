@@ -85,14 +85,37 @@ router.put("/room/update/:id", isAuthenticated, async (req, res) => {
       const room = await Room.findById(id).populate("owner");
       let roomOwnerToken = room.owner.token;
       let currentUserToken = req.token;
+      let newTitle = req.fields.title;
+      let newDescription = req.fields.description;
+      let newPrice = req.fields.price;
+      let newLat = req.fields.lat;
+      let newLng = req.fields.lng;
+      console.log(newTitle);
+      console.log(room.title);
 
       if (roomOwnerToken === currentUserToken) {
-        res.status(200).json("all good");
+        if (newTitle) {
+          room.title = newTitle;
+        }
+        if (newDescription) {
+          room.description = newDescription;
+        }
+        if (newPrice) {
+          room.price = newPrice;
+        }
+        if (newLat) {
+          room.location.lat = newLat;
+        }
+        if (newLng) {
+          room.location.lng = newLng;
+        }
+        room.save();
+        res.status(200).json(room);
       } else {
         res.status(400).json({ message: "only the room owner can modify it" });
       }
     } else {
-      res.status(400).json({ message: "id missing" });
+      res.status(400).json({ message: "Please specify a room id" });
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
