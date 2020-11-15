@@ -6,6 +6,7 @@ const encBase64 = require("crypto-js/enc-base64");
 const uid2 = require("uid2");
 
 const User = require("../models/User");
+const Room = require("../models/Room");
 
 router.post("/user/sign_up", async (req, res) => {
   const { email, username, phone, avatar, password, description } = req.fields;
