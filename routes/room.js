@@ -25,7 +25,7 @@ router.post("/room/publish", isAuthenticated, async (req, res) => {
         folder: `/Airbnb/${newRoom._id}`,
       });
 
-      newRoom.picture = result;
+      newRoom.pictures.push(result);
 
       // Sauvegarder la room
       await newRoom.save();
