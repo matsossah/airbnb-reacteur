@@ -64,8 +64,8 @@ router.get("/rooms", async (req, res) => {
   }
 });
 
-router.get("/room", async (req, res) => {
-  let id = req.query.id;
+router.get("/room/:id", async (req, res) => {
+  let id = req.params.id;
   console.log(id);
   try {
     if (id) {
