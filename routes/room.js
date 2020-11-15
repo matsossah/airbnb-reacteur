@@ -16,8 +16,10 @@ router.post("/room/publish", isAuthenticated, async (req, res) => {
         title: title,
         description: description,
         price: price,
-        lat: lat,
-        lng: lng,
+        location: {
+          lat: lat,
+          lng: lng,
+        },
         owner: req.user,
       });
       // Envoyer l'image à cloudinary
@@ -34,7 +36,15 @@ router.post("/room/publish", isAuthenticated, async (req, res) => {
       req.user.rooms.push(newRoom);
       await req.user.save();
 
-      res.status(200).json(newRoom);
+      res.status(200).json({
+        _id: newRoom._id,
+        title: title,
+        description: description,
+        price: price,
+        pictures: newRoom.pictures,
+        location: [lat, lng],
+        owner: req.user,
+      });
     } else {
       res.status(400).json({ message: "Invalid Parameters" });
     }
