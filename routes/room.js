@@ -27,8 +27,12 @@ router.post("/room/publish", isAuthenticated, async (req, res) => {
 
       newRoom.picture = result;
 
-      // Sauvegarder l'offre
+      // Sauvegarder la room
       await newRoom.save();
+
+      //Ajouter la room au compte du user
+      req.user.rooms.push(newRoom);
+      await req.user.save();
 
       res.status(200).json(newRoom);
     } else {

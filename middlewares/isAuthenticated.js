@@ -5,7 +5,7 @@ const isAuthenticated = async (req, res, next) => {
     if (req.headers.authorization) {
       const token = req.headers.authorization.replace("Bearer ", "");
       const user = await User.findOne({ token: token }).select(
-        "account email _id"
+        "account email _id rooms"
       );
 
       if (user) {

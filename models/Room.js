@@ -9,6 +9,10 @@ const Room = mongoose.model("Room", {
     lat: String,
     lng: String,
   },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
 });
 
 module.exports = Room;
