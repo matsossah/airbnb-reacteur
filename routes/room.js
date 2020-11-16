@@ -5,6 +5,7 @@ const User = require("../models/User");
 const Room = require("../models/Room");
 const cloudinary = require("cloudinary").v2;
 const isAuthenticated = require("../middlewares/isAuthenticated");
+const { route } = require("./user");
 
 router.post("/room/publish", isAuthenticated, async (req, res) => {
   const { title, description, price, lat, lng } = req.fields;
@@ -90,8 +91,6 @@ router.put("/room/update/:id", isAuthenticated, async (req, res) => {
       let newPrice = req.fields.price;
       let newLat = req.fields.lat;
       let newLng = req.fields.lng;
-      console.log(newTitle);
-      console.log(room.title);
 
       if (roomOwnerToken === currentUserToken) {
         if (newTitle) {
@@ -113,6 +112,49 @@ router.put("/room/update/:id", isAuthenticated, async (req, res) => {
         res.status(200).json(room);
       } else {
         res.status(400).json({ message: "only the room owner can modify it" });
+      }
+    } else {
+      res.status(400).json({ message: "Please specify a room id" });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.delete("/room/delete/:id", isAuthenticated, async (req, res) => {
+  let id = req.params.id;
+  try {
+    if (id) {
+      const room = await Room.findById(id).populate("owner");
+      let roomOwnerToken = room.owner.token;
+      let currentUserToken = req.token;
+
+      if (roomOwnerToken === currentUserToken) {
+        room.delete();
+        let currentUserRooms = req.user.rooms;
+        let updatedUserRooms = [];
+        for (let i = 0; i < currentUserRooms.length; i++) {
+          if (currentUserRooms[i] != room.id) {
+            updatedUserRooms.push(currentUserRooms[i]);
+          }
+        }
+        // let roomPictures = room.pictures;
+        // for (let i = 0; i < roomPictures.length; i++) {
+        //   await cloudinary.uploader.destroy(
+        //     roomPictures[i].public_id,
+        //     function (error, result) {
+        //       console.log(result, error);
+        //     }
+        //   );
+        // }
+
+        req.user.rooms = updatedUserRooms;
+        req.user.save();
+        res.status(200).json("Room Deleted");
+      } else {
+        res
+          .status(400)
+          .json({ message: "only the room owner can delete this room" });
       }
     } else {
       res.status(400).json({ message: "Please specify a room id" });
