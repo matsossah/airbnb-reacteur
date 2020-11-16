@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const isAuthenticated = require("../middlewares/isAuthenticated");
+const cloudinary = require("cloudinary").v2;
 
 const SHA256 = require("crypto-js/sha256");
 const encBase64 = require("crypto-js/enc-base64");
@@ -78,6 +80,36 @@ router.post("/user/log_in", async (req, res) => {
       }
     } else {
       res.status(400).json({ message: "Invalid request" });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.post("/user/upload_picture/:id", isAuthenticated, async (req, res) => {
+  let id = req.params.id;
+  let userPicture = req.files.picture.path;
+  try {
+    if (req.user) {
+      const result = await cloudinary.uploader.upload(userPicture, {
+        folder: `/Airbnb/${req.user._id}`,
+      });
+
+      req.user.account.avatar = result;
+      req.user.save();
+      res.status(200).json(req.user);
+    } else if (id) {
+      let userToUpdate = await User.findById(id);
+
+      const result = await cloudinary.uploader.upload(userPicture, {
+        folder: `/Airbnb/${userToUpdate._id}`,
+      });
+
+      userToUpdate.account.avatar = result;
+      userToUpdate.save();
+      res.status(200).json(req.user);
+    } else {
+      res.status(400).json({ message: "Please log in or specify a user id" });
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
