@@ -130,7 +130,7 @@ router.delete("/room/delete/:id", isAuthenticated, async (req, res) => {
       let currentUserToken = req.token;
 
       if (roomOwnerToken === currentUserToken) {
-        room.delete();
+        await room.delete();
         let currentUserRooms = req.user.rooms;
         let updatedUserRooms = [];
         for (let i = 0; i < currentUserRooms.length; i++) {
@@ -149,7 +149,7 @@ router.delete("/room/delete/:id", isAuthenticated, async (req, res) => {
         // }
 
         req.user.rooms = updatedUserRooms;
-        req.user.save();
+        await req.user.save();
         res.status(200).json("Room Deleted");
       } else {
         res
