@@ -5,7 +5,6 @@ const User = require("../models/User");
 const Room = require("../models/Room");
 const cloudinary = require("cloudinary").v2;
 const isAuthenticated = require("../middlewares/isAuthenticated");
-const { route } = require("./user");
 
 router.post("/room/publish", isAuthenticated, async (req, res) => {
   const { title, description, price, lat, lng } = req.fields;
@@ -23,12 +22,12 @@ router.post("/room/publish", isAuthenticated, async (req, res) => {
         },
         owner: req.user,
       });
-      // Envoyer l'image à cloudinary
-      const result = await cloudinary.uploader.upload(picture, {
-        folder: `/Airbnb/${newRoom._id}`,
-      });
+      // // Envoyer l'image à cloudinary
+      // const result = await cloudinary.uploader.upload(picture, {
+      //   folder: `/Airbnb/${newRoom._id}`,
+      // });
 
-      newRoom.pictures.push(result);
+      // newRoom.pictures.push(result);
 
       // Sauvegarder la room
       await newRoom.save();
@@ -43,9 +42,39 @@ router.post("/room/publish", isAuthenticated, async (req, res) => {
         description: description,
         price: price,
         pictures: newRoom.pictures,
-        location: [lat, lng],
+        location: { lat: lat, lng: lng },
         owner: req.user,
       });
+    } else {
+      res.status(400).json({ message: "Invalid Parameters" });
+    }
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.post("/room/upload_picture/:id", isAuthenticated, async (req, res) => {
+  const picture = req.files.picture.path;
+  let id = req.params.id;
+  try {
+    if (req.user && id && picture) {
+      let roomToUpdate = await Room.findById(id);
+      if (req.user._id == roomToUpdate.owner.toString()) {
+        console.log(req.user);
+        console.log(roomToUpdate);
+        // Envoyer l'image à cloudinary
+        const result = await cloudinary.uploader.upload(picture, {
+          folder: `/Airbnb/${roomToUpdate._id}`,
+        });
+
+        roomToUpdate.pictures.push(result);
+        await roomToUpdate.save();
+        res.status(200).json(roomToUpdate);
+      } else {
+        res
+          .status(200)
+          .json({ message: "Only the owner of this room can add pictures" });
+      }
     } else {
       res.status(400).json({ message: "Invalid Parameters" });
     }
