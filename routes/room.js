@@ -60,8 +60,6 @@ router.post("/room/upload_picture/:id", isAuthenticated, async (req, res) => {
     if (req.user && id && picture) {
       let roomToUpdate = await Room.findById(id);
       if (req.user._id == roomToUpdate.owner.toString()) {
-        console.log(req.user);
-        console.log(roomToUpdate);
         // Envoyer l'image à cloudinary
         const result = await cloudinary.uploader.upload(picture, {
           folder: `/Airbnb/${roomToUpdate._id}`,
@@ -69,6 +67,46 @@ router.post("/room/upload_picture/:id", isAuthenticated, async (req, res) => {
 
         roomToUpdate.pictures.push(result);
         await roomToUpdate.save();
+        res.status(200).json(roomToUpdate);
+      } else {
+        res
+          .status(200)
+          .json({ message: "Only the owner of this room can add pictures" });
+      }
+    } else {
+      res.status(400).json({ message: "Invalid Parameters" });
+    }
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.delete("/room/delete_picture/:id", isAuthenticated, async (req, res) => {
+  let roomId = req.params.id;
+  let picture_id = req.fields.picture_id;
+  try {
+    if (req.user && picture_id && roomId) {
+      let roomToUpdate = await Room.findById(roomId);
+      let cloudinaryAddress = `Airbnb/${roomId}/${picture_id}`;
+
+      if (req.user._id == roomToUpdate.owner.toString()) {
+        let roomPictures = roomToUpdate.pictures;
+        let newRoomPictures = [];
+        for (let i = 0; i < roomPictures.length; i++) {
+          if (cloudinaryAddress === roomPictures[i].public_id) {
+            await cloudinary.uploader.destroy(
+              //needs the public_id to delete
+              cloudinaryAddress,
+              function (error, result) {
+                console.log(result, error);
+              }
+            );
+          } else {
+            newRoomPictures.push(roomPictures[i]);
+          }
+        }
+        roomToUpdate.pictures = newRoomPictures;
+        roomToUpdate.save();
         res.status(200).json(roomToUpdate);
       } else {
         res
