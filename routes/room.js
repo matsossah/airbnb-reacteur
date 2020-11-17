@@ -107,7 +107,7 @@ router.delete("/room/delete_picture/:id", isAuthenticated, async (req, res) => {
         }
         roomToUpdate.pictures = newRoomPictures;
         roomToUpdate.save();
-        res.status(200).json(roomToUpdate);
+        res.status(200).json({ message: "Picture deleted" });
       } else {
         res
           .status(200)
