@@ -116,4 +116,25 @@ router.post("/user/upload_picture/:id", isAuthenticated, async (req, res) => {
   }
 });
 
+router.delete("/user/delete_picture/:id", isAuthenticated, async (req, res) => {
+  let id = req.params.id;
+  try {
+    if (req.user) {
+      req.user.account.avatar = null;
+      req.user.save();
+      res.status(200).json(req.user);
+    } else if (id) {
+      let userToUpdate = await User.findById(id);
+
+      userToUpdate.account.avatar = null;
+      userToUpdate.save();
+      res.status(200).json(userToUpdate);
+    } else {
+      res.status(400).json({ message: "Please log in or specify a user id" });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router;
