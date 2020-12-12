@@ -24,9 +24,6 @@ cloudinary.config({
 const userRoutes = require("./routes/user");
 app.use(userRoutes);
 
-const roomRoutes = require("./routes/room");
-app.use(roomRoutes);
-
 app.all("*", (req, res) => {
   res.status(400).json({ message: "Cette route n'existe pas" });
 });
